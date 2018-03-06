@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - martin localurltotext
-* @copyright (c) 2014 Martin ( https://github.com/Martin-G- )
+* @copyright (c) 2018 Martin ( https://github.com/Mar-tin-G )
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -11,31 +11,37 @@ namespace martin\localurltotext\acp;
 
 class main_module
 {
-	var $u_action;
+	public $u_action;
+	public $tpl_name;
+	public $page_title;
 
-	function main($id, $mode)
+	public function main($id, $mode)
 	{
-		global $db, $user, $auth, $template, $cache, $request;
-		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
+		global $phpbb_container, $template, $request, $config;
 
-		$user->add_lang('acp/common');
+		/* @var \phpbb\language\language $lang */
+		$lang = $phpbb_container->get('language');
+
 		$this->tpl_name = 'localurltotext_body';
-		$this->page_title = $user->lang('ACP_LOCALURLTOTEXT_TITLE');
+		$this->page_title = $lang->lang('ACP_LOCALURLTOTEXT_TITLE');
 		add_form_key('martin/localurltotext');
 
 		if ($request->is_set_post('submit'))
 		{
 			if (!check_form_key('martin/localurltotext'))
 			{
-				trigger_error('FORM_INVALID');
+				$lang->add_lang('acp/common');
+				trigger_error('FORM_INVALID', E_USER_WARNING);
 			}
 
-			$config->set('martin_localurltotext_forum', $request->variable('martin_localurltotext_forum', ''));
-			$config->set('martin_localurltotext_topic', $request->variable('martin_localurltotext_topic', ''));
-			$config->set('martin_localurltotext_post', $request->variable('martin_localurltotext_post', ''));
-			$config->set('martin_localurltotext_user', $request->variable('martin_localurltotext_user', ''));
+			$config->set('martin_localurltotext_forum',	$request->variable('martin_localurltotext_forum', '', true));
+			$config->set('martin_localurltotext_topic',	$request->variable('martin_localurltotext_topic', '', true));
+			$config->set('martin_localurltotext_post',	$request->variable('martin_localurltotext_post', '', true));
+			$config->set('martin_localurltotext_user',	$request->variable('martin_localurltotext_user', '', true));
+			$config->set('martin_localurltotext_page',	$request->variable('martin_localurltotext_page', '', true));
+			$config->set('martin_localurltotext_cpf',	$request->variable('martin_localurltotext_cpf', 0));
 
-			trigger_error($user->lang('ACP_LOCALURLTOTEXT_SETTING_SAVED') . adm_back_link($this->u_action));
+			trigger_error($lang->lang('ACP_LOCALURLTOTEXT_SETTING_SAVED'). adm_back_link($this->u_action));
 		}
 
 		$template->assign_vars(array(
@@ -44,6 +50,8 @@ class main_module
 			'MARTIN_LOCALURLTOTEXT_TOPIC'	=> $config['martin_localurltotext_topic'],
 			'MARTIN_LOCALURLTOTEXT_POST'	=> $config['martin_localurltotext_post'],
 			'MARTIN_LOCALURLTOTEXT_USER'	=> $config['martin_localurltotext_user'],
+			'MARTIN_LOCALURLTOTEXT_PAGE'	=> $config['martin_localurltotext_page'],
+			'MARTIN_LOCALURLTOTEXT_CPF'		=> $config['martin_localurltotext_cpf'],
 		));
 	}
 }
